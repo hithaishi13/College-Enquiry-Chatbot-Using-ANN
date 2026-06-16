@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SJBIT | Placement & Training Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fef6ef; font-family: 'Inter', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 2rem 1.5rem; color: #2c241a; }
+    .placement-container { max-width: 1400px; margin: 0 auto; background: #ffffff; border-radius: 2rem; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.08); overflow: hidden; }
+    .college-header { background: linear-gradient(115deg, #FFE6D5 0%, #FFD9C0 100%); padding: 1.6rem 2rem; border-bottom: 1px solid #ffd2b0; }
+    .college-name { font-size: 1.9rem; font-weight: 700; color: #aa6f3c; letter-spacing: -0.3px; }
+    .college-sub { font-size: 0.85rem; color: #c4814a; margin-top: 0.3rem; display: flex; flex-wrap: wrap; gap: 1rem; }
+    .placement-hero { background: #FFF9F2; padding: 1rem 2rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5e2cf; }
+    .hero-title h2 { font-size: 1.7rem; font-weight: 700; color: #b9753e; }
+    .hero-title p { color: #d18d54; font-size: 0.85rem; }
+    .badge { background: #FFE3CF; padding: 0.3rem 1rem; border-radius: 40px; font-size: 0.75rem; font-weight: 600; color: #bf7842; }
+    .nav-buttons { display: flex; flex-wrap: wrap; gap: 0.8rem; padding: 1.5rem 2rem 0 2rem; border-bottom: 1px solid #fbebdd; }
+    .action-btn { background: #FFF4EA; border: none; padding: 0.7rem 1.6rem; font-size: 0.9rem; font-weight: 600; border-radius: 50px; cursor: pointer; transition: 0.2s; color: #bc7844; font-family: inherit; }
+    .action-btn.active { background: #FAD5A5; color: #77471e; box-shadow: 0 4px 8px rgba(250,213,165,0.3); }
+    .action-btn:hover:not(.active) { background: #ffe1ca; color: #9a5f30; }
+    .content-panel { padding: 2rem 2rem 2.2rem 2rem; min-height: 480px; }
+
+    /* ── Recruiter grid ── */
+    .recruiter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.2rem; margin-top: 0.5rem; }
+
+    .company-card {
+      background: #FEFAF5;
+      border-radius: 20px;
+      padding: 1.2rem 0.8rem 0.9rem;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid #ffe2cc;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .company-card:hover { transform: translateY(-3px); background: #fff4e9; border-color: #ffcfaa; }
+
+    /* logo wrapper — fixed square so all cards same height */
+    .logo-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #f0ddd0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* real image — hidden until loaded */
+    .logo-wrap img {
+      width: 62px;
+      height: 62px;
+      object-fit: contain;
+      display: none; /* shown via JS on load */
+    }
+
+    /* SVG fallback badge */
+    .logo-wrap svg.fallback { display: block; }
+
+    .company-name { font-weight: 700; font-size: 0.82rem; color: #b4682c; letter-spacing: 0.2px; word-break: break-word; }
+
+    /* training & charts (unchanged) */
+    .training-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .training-category { background: #FFFBF6; border-left: 5px solid #F9C89B; padding: 0.8rem 1.2rem; border-radius: 18px; }
+    .training-category h4 { font-size: 1rem; font-weight: 700; color: #c07a42; margin-bottom: 0.4rem; }
+    .training-category ul { padding-left: 1.2rem; color: #5f442e; font-size: 0.9rem; }
+    .training-category li { margin: 0.3rem 0; }
+    .chart-wrapper { max-width: 650px; margin: 0 auto; background: #ffffff; padding: 1rem; border-radius: 28px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
+    canvas { max-height: 320px; width: 100%; }
+    .stats-note { text-align: center; font-size: 0.75rem; color: #c9925f; margin-top: 1rem; }
+    .flex-stats { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .footer-contact { background: #FFF7F0; padding: 1.2rem 2rem; border-top: 1px solid #F9E6D4; display: flex; flex-wrap: wrap; justify-content: space-between; font-size: 0.75rem; color: #bb814f; }
+    .contact-links span { margin-right: 1.2rem; }
+
+    @media (max-width: 680px) {
+      body { padding: 1rem; }
+      .nav-buttons { padding: 1rem 1rem 0 1rem; }
+      .content-panel { padding: 1.5rem; }
+      .action-btn { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="placement-container">
+  <div class="college-header">
+    <div class="college-name">SJB Institute of Technology</div>
+    <div class="college-sub">NAAC A++ Grade | NBA Accredited | AICTE Approved | Karnataka</div>
+  </div>
+  <div class="placement-hero">
+    <div class="hero-title">
+      <h2> Placement & Training Cell</h2>
+      <p>Corporate Resource Development | Industry Readiness | 360° Career Support</p>
+    </div>
+    <div class="badge">Highest Placement: 85% (2023–24)</div>
+  </div>
+  <div class="nav-buttons" id="navButtons">
+    <button class="action-btn active" data-section="recruiters"> Key Recruiters</button>
+    <button class="action-btn" data-section="placement"> Placement Record</button>
+    <button class="action-btn" data-section="internship"> Internship Record</button>
+    <button class="action-btn" data-section="training"> Training Programs</button>
+  </div>
+  <div class="content-panel" id="dynamicContent">
+    <div id="recruitersView">
+      <h3 style="color:#bd7a43; margin-bottom: 1rem;"> Top Recruiters & Corporate Partners</h3>
+      <div class="recruiter-grid" id="recruitersGrid"></div>
+      <p class="stats-note" style="margin-top:1.5rem;"> 150+ companies visit annually | Dream offers | Internship embedded programs</p>
+    </div>
+    <div id="placementView" style="display:none;"></div>
+    <div id="internshipView" style="display:none;"></div>
+    <div id="trainingView" style="display:none;"></div>
+  </div>
+  <div class="footer-contact">
+    <div class="contact-links">
+      <span>📞 +91 7720 09 7780</span>
+      <span>📧 placement@sjbit.edu.in</span>
+      <span>📍 Kengeri, Karnataka</span>
+    </div>
+    <div>© 2026 SJBIT | Training & Placement Cell</div>
+  </div>
+</div>
+
+<script>
+  /*
+   * Company data:
+   * "domain" is used to fetch the logo from logo.clearbit.com (free, no key needed).
+   * Leave domain as "" if unknown — will show the SVG initials badge instead.
+   */
+  const recruiters = [
+    { name: "Dentsu",                     domain: "dentsu.com" },
+    { name: "Schaeffler",                 domain: "schaeffler.com" },
+    { name: "Stellium",                   domain: "" },
+    { name: "Tata Engineering",           domain: "tata.com" },
+    { name: "CPS",                        domain: "" },
+    { name: "Polycab India",              domain: "polycab.com" },
+    { name: "Bosch",                      domain: "bosch.com" },
+    { name: "Anand Group",                domain: "anandgroupindia.com" },
+    { name: "Tech Mahindra",              domain: "techmahindra.com" },
+    { name: "Infosys",                    domain: "infosys.com" },
+    { name: "KPI",                        domain: "" },
+    { name: "Bitwise",                    domain: "bitwiseindia.com" },
+    { name: "Brose",                      domain: "brose.com" },
+    { name: "Capgemini",                  domain: "capgemini.com" },
+    { name: "Persistent",                 domain: "persistent.com" },
+    { name: "Zensar Technologies",        domain: "zensar.com" },
+    { name: "TMCS",                       domain: "" },
+    { name: "KOEL",                       domain: "kirloskar.com" },
+    { name: "Carrier",                    domain: "carrier.com" },
+    { name: "Midea",                      domain: "midea.com" },
+    { name: "Kubera Group",               domain: "" },
+    { name: "Carrier Midea India",        domain: "carriermidea.com" },
+    { name: "Jabil",                      domain: "jabil.com" },
+    { name: "Plancer",                    domain: "" }
+  ];
+
+  function getColor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+    return `hsl(${Math.abs(h % 360)}, 55%, 72%)`;
+  }
+
+  function initials(name) {
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : name.substring(0, 2).toUpperCase();
+  }
+
+  function fallbackSVG(name) {
+    const bg = getColor(name);
+    const ini = initials(name);
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("width", "62"); svg.setAttribute("height", "62");
+    svg.setAttribute("viewBox", "0 0 62 62");
+    svg.classList.add("fallback");
+
+    const rect = document.createElementNS(ns, "rect");
+    rect.setAttribute("width", "62"); rect.setAttribute("height", "62");
+    rect.setAttribute("rx", "10"); rect.setAttribute("fill", bg);
+    rect.setAttribute("stroke", "#e7bc8c"); rect.setAttribute("stroke-width", "1");
+
+    const text = document.createElementNS(ns, "text");
+    text.setAttribute("x", "31"); text.setAttribute("y", "40");
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("font-size", "22"); text.setAttribute("font-weight", "700");
+    text.setAttribute("fill", "#6b3a18"); text.textContent = ini;
+
+    svg.appendChild(rect); svg.appendChild(text);
+    return svg;
+  }
+
+  function renderRecruiters() {
+    const grid = document.getElementById("recruitersGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    recruiters.forEach(({ name, domain }) => {
+      const card = document.createElement("div");
+      card.className = "company-card";
+
+      const wrap = document.createElement("div");
+      wrap.className = "logo-wrap";
+
+      const fb = fallbackSVG(name);
+      wrap.appendChild(fb);                 // fallback visible by default
+
+      if (domain) {
+        const img = document.createElement("img");
+        img.alt = name + " logo";
+
+        // Try Clearbit first; on error try Google Favicons as second fallback
+        img.src = `https://logo.clearbit.com/${domain}?size=128`;
+
+        img.onload = () => {
+          fb.style.display = "none";        // hide SVG badge
+          img.style.display = "block";      // show real logo
+        };
+        img.onerror = () => {
+          // try Google favicon as backup
+          img.src = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+          img.onload = () => {
+            fb.style.display = "none";
+            img.style.display = "block";
+          };
+          img.onerror = () => {
+            // keep SVG fallback visible — nothing more to try
+          };
+        };
+
+        wrap.appendChild(img);
+      }
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "company-name";
+      nameEl.textContent = name;
+
+      card.appendChild(wrap);
+      card.appendChild(nameEl);
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Chart data ──
+  const placementData  = { labels: ["A.Y. 2022–23","A.Y. 2023–24","A.Y. 2024–25"], percentages: [74,85,81], note: "*2022-23 based on institutional reports; 2023-24 & 2024-25 per official placement stats." };
+  const internshipData = { labels: ["A.Y. 2022–23","A.Y. 2023–24","A.Y. 2024–25"], percentages: [68,72,70], note: "Internship placement rates (summer internship + industry training) — data source: CRD cell." };
+  let placementChart = null, internshipChart = null;
+
+  function renderPlacementChart() {
+    const c = document.getElementById("placementView");
+    c.innerHTML = `<h3 style="color:#bd7a43;margin-bottom:.5rem;"> Institute Percentage Placement</h3><div class="chart-wrapper"><canvas id="placementCanvas" width="400" height="250"></canvas></div><div class="stats-note">${placementData.note}</div><div class="flex-stats" style="margin-top:1rem;"><div><strong>🏆 2023-24:</strong> 85%</div><div><strong>⭐ 2024-25:</strong> 81%</div><div><strong>📊 2022-23:</strong> 74%</div></div><p class="stats-note">*International placements: 12+ offers in 2024 | Top MNCs</p>`;
+    if (placementChart) placementChart.destroy();
+    placementChart = new Chart(document.getElementById("placementCanvas").getContext("2d"), {
+      type: "bar", data: { labels: placementData.labels, datasets: [{ label: "Placement %", data: placementData.percentages, backgroundColor: "#F9C89B", borderRadius: 12, borderSkipped: false }] },
+      options: { responsive: true, plugins: { legend: { position: "top" } }, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: "Percentage" } } } }
+    });
+  }
+
+  function renderInternshipChart() {
+    const c = document.getElementById("internshipView");
+    c.innerHTML = `<h3 style="color:#bd7a43;margin-bottom:.5rem;"> Internship Record (Industry Training)</h3><div class="chart-wrapper"><canvas id="internshipCanvas" width="400" height="250"></canvas></div><div class="stats-note">${internshipData.note}</div><div class="flex-stats" style="margin-top:1rem;"><div><strong>2022-23:</strong> 68%</div><div><strong>2023-24:</strong> 72%</div><div><strong>2024-25:</strong> 70%</div></div>`;
+    if (internshipChart) internshipChart.destroy();
+    internshipChart = new Chart(document.getElementById("internshipCanvas").getContext("2d"), {
+      type: "line", data: { labels: internshipData.labels, datasets: [{ label: "Internship Rate (%)", data: internshipData.percentages, borderColor: "#E68A2E", backgroundColor: "rgba(249,200,155,0.2)", fill: true, tension: 0.2 }] },
+      options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+  }
+
+  const trainingModules = [
+    { title: " Induction & Orientation",     items: ["Induction Programme for First year students","Campus to Corporate transition sessions","Personality Development Bootcamp"] },
+    { title: " Aptitude & Reasoning",         items: ["42 hours Aptitude training (Quantitative, Logical reasoning)","Weekly sessions for S.E., T.E. & B.E. students","Practice sessions for T.E. & B.E. Students"] },
+    { title: " Soft Skills & Interview Prep", items: ["Group Discussion & Personal Interview Sessions","Technical Interview sessions by Industry Experts","Email etiquettes, Dressing Sense, Resume Writing","Mock interviews"] },
+    { title: " Higher Education & Global",    items: ["Higher Education Support (GRE, GMAT, IELTS)","Letter of Recommendation workshops","Sessions by Experts for abroad studies"] },
+    { title: " Industry Immersion",           items: ["Sessions by Industry stalwarts","Industrial visits & live projects","Technical seminars"] }
+  ];
+
+  function renderTraining() {
+    const c = document.getElementById("trainingView");
+    let html = `<h3 style="color:#bd7a43;margin-bottom:1rem;"> Placement Preparation & Training Curriculum</h3><div class="training-list">`;
+    trainingModules.forEach(m => {
+      html += `<div class="training-category"><h4>${m.title}</h4><ul>${m.items.map(i=>`<li> ${i}</li>`).join("")}</ul></div>`;
+    });
+    html += `<p class="stats-note">*Additional support: Letter of Recommendation, Expert Alumni talks.</p></div>`;
+    c.innerHTML = html;
+  }
+
+  function showSection(section) {
+    ["recruitersView","placementView","internshipView","trainingView"].forEach(id => {
+      document.getElementById(id).style.display = "none";
+    });
+    if (section === "recruiters")  { document.getElementById("recruitersView").style.display  = "block"; renderRecruiters(); }
+    if (section === "placement")   { document.getElementById("placementView").style.display   = "block"; renderPlacementChart(); }
+    if (section === "internship")  { document.getElementById("internshipView").style.display  = "block"; renderInternshipChart(); }
+    if (section === "training")    { document.getElementById("trainingView").style.display    = "block"; renderTraining(); }
+  }
+
+  document.querySelectorAll(".action-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".action-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      showSection(btn.getAttribute("data-section"));
+    });
+  });
+
+  renderRecruiters();
+  showSection("recruiters");
+</script>
+</body>
+</html>

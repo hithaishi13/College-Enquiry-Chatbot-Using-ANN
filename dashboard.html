@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Dashboard</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+  margin: 0;
+}
+
+/* NAV BUTTONS */
+.nav {
+  text-align: center;
+  padding: 15px;
+  background: #222;
+}
+
+.nav button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  background: #ff9800;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav button:hover {
+  background: #e68900;
+}
+
+/* SECTIONS */
+.section {
+  padding: 20px;
+}
+
+/* CHATBOT */
+.chatbox {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.message {
+  margin: 8px 0;
+}
+
+/* HOSTEL GALLERY */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.gallery img {
+  width: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button onclick="showSection('fees')">💰 Fees</button>
+  <button onclick="showSection('hostel')">🏠 Hostel</button>
+  <button onclick="showSection('placement')">💼 Placement</button>
+</div>
+
+<!-- FEES SECTION -->
+<div id="feesSection" class="section">
+  <h2>💰 Fees Structure</h2>
+  <p>B.Tech: ₹1,21,000 per year</p>
+  <p>M.Tech: ₹80,000 per year</p>
+</div>
+
+<!-- HOSTEL SECTION -->
+<div id="hostelSection" class="section" style="display:none;">
+  <h2>🏠 Hostel</h2>
+
+  <div class="gallery">
+    <img src="images/images.jpeg">
+    <img src="images/images (1).jpeg">
+    <img src="images/images (2).jpeg">
+    <img src="images/images (3).jpeg">
+  </div>
+</div>
+
+<!-- PLACEMENT SECTION -->
+<div id="placementSection" class="section" style="display:none;">
+  <h2>💼 Placement</h2>
+  <p>Average Package: 6 LPA</p>
+  <p>Top Companies: Infosys, TCS, Wipro</p>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbox">
+  <h3>🤖 Assistant</h3>
+  <div id="chat"></div>
+
+  <button onclick="showOptions()">Ask Options</button>
+</div>
+
+<script>
+
+// SWITCH SECTIONS
+function showSection(section) {
+  document.getElementById('feesSection').style.display = 'none';
+  document.getElementById('hostelSection').style.display = 'none';
+  document.getElementById('placementSection').style.display = 'none';
+
+  if(section === 'fees')
+    document.getElementById('feesSection').style.display = 'block';
+
+  if(section === 'hostel')
+    document.getElementById('hostelSection').style.display = 'block';
+
+  if(section === 'placement')
+    document.getElementById('placementSection').style.display = 'block';
+}
+
+// CHATBOT MESSAGE
+function addMessage(text) {
+  document.getElementById("chat").innerHTML += "<div class='message'>" + text + "</div>";
+}
+
+// BUTTON CHATBOT
+function showOptions() {
+  addMessage(`
+    What do you want?<br><br>
+
+    <button onclick="showSection('fees')">💰 Fees</button>
+    <button onclick="showSection('hostel')">🏠 Hostel</button>
+    <button onclick="showSection('placement')">💼 Placement</button>
+  `);
+}
+
+</script>
+
+</body>
+</html>

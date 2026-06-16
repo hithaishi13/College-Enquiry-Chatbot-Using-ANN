@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SJB Institute of Technology | Fee Structure 2025-26</title>
+  <!-- jsPDF library for generating PDF brochure -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fef7ed;
+      font-family: 'Segoe UI', 'Roboto', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      padding: 2rem 1rem;
+      color: #5a3e2b;
+    }
+
+    /* Main card container */
+    .fee-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 28px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    /* Header / College branding - soft orange pastel */
+    .college-header {
+      background: linear-gradient(135deg, #FAD7A1 0%, #FFD0A4 100%);
+      padding: 1.8rem 2rem;
+      color: #7b4a2e;
+    }
+
+    .college-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: #6b3f1f;
+    }
+
+    .college-name span {
+      background: rgba(255, 245, 235, 0.7);
+      padding: 0.2rem 0.9rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #9b5e2e;
+    }
+
+    .accreditation {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-top: 0.5rem;
+      border-top: 1px solid rgba(155, 94, 46, 0.2);
+      padding-top: 0.8rem;
+      color: #8b5a34;
+    }
+
+    .accreditation p {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* quick contact row */
+    .contact-row {
+      background: #FFF8F0;
+      padding: 0.8rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #FFE6CF;
+      font-size: 0.85rem;
+      color: #b87a48;
+    }
+
+    .badge-year {
+      background: #FFEEDD;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #d68b45;
+    }
+
+    /* Title + Toggle Switch */
+    .fee-header-section {
+      padding: 1.8rem 2rem 0.5rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .program-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #c17b42;
+      letter-spacing: -0.2px;
+    }
+
+    .fra-sub {
+      color: #cb8a51;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+      border-left: 4px solid #F7C59F;
+      padding-left: 1rem;
+      background: #FFF9F2;
+      border-radius: 0 12px 12px 0;
+      max-width: 600px;
+    }
+
+    /* Switch (toggle) buttons - soft pastel */
+    .degree-switch {
+      display: flex;
+      gap: 12px;
+      background: #FFEFE2;
+      padding: 6px;
+      border-radius: 60px;
+    }
+
+    .switch-btn {
+      padding: 0.6rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #c17b42;
+      font-family: inherit;
+    }
+
+    .switch-btn.active {
+      background: #F9C89B;
+      color: #6b3f1f;
+      box-shadow: 0 4px 10px rgba(249, 200, 155, 0.3);
+    }
+
+    .switch-btn:not(.active):hover {
+      background: #FFE0C4;
+      color: #a8682e;
+    }
+
+    /* Table wrapper (responsive) */
+    .table-wrapper {
+      padding: 1.2rem 2rem 2rem 2rem;
+      overflow-x: auto;
+    }
+
+    .fee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .fee-table thead tr {
+      background: #FAD5A5;
+      color: #6b3f1f;
+    }
+
+    .fee-table th {
+      padding: 1rem 1.2rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: left;
+      letter-spacing: 0.3px;
+    }
+
+    .fee-table td {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid #FDE8D6;
+      vertical-align: middle;
+      background-color: #ffffff;
+    }
+
+    .fee-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .fee-table tbody tr:hover td {
+      background-color: #FFFCF7;
+      transition: 0.1s;
+    }
+
+    .branch-highlight {
+      font-weight: 600;
+      color: #c37d46;
+    }
+
+    .fee-amount {
+      font-weight: 600;
+      color: #d48d4b;
+    }
+
+    .total-fee {
+      font-weight: 700;
+      color: #bd733b;
+    }
+
+    .na-text {
+      color: #cfaa8a;
+      font-weight: 500;
+      font-style: italic;
+    }
+
+    .refund-badge {
+      background: #FEEAD9;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-left: 8px;
+      color: #c07a44;
+    }
+
+    .table-caption-note {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #c38b58;
+      text-align: right;
+      border-top: 1px dashed #FCE2CD;
+      padding-top: 1rem;
+    }
+
+    .info-box {
+      margin: 0 2rem 1.5rem 2rem;
+      background: #FFF6ED;
+      padding: 0.9rem 1.5rem;
+      border-radius: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #c17b42;
+    }
+
+    .info-box span:first-child {
+      font-weight: 600;
+      background: #FFEEDD;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+    }
+
+    .footer-links {
+      background: #FEFBF7;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid #FBE5D2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.75rem;
+    }
+
+    .footer-nav a {
+      text-decoration: none;
+      color: #d29257;
+      margin-right: 1.2rem;
+      transition: 0.2s;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .footer-nav a:hover {
+      color: #b56f39;
+      text-decoration: underline;
+    }
+
+    .copyright {
+      color: #c28852;
+    }
+
+    /* chatbot floating button - soft pastel */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 1.8rem;
+      right: 1.8rem;
+      background: #F9C89B;
+      color: #6b3f1f;
+      border: none;
+      width: 56px;
+      height: 56px;
+      border-radius: 60px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(249, 200, 155, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.9rem;
+      transition: 0.2s;
+      z-index: 1000;
+      background: linear-gradient(145deg, #FFDEB8, #F9C89B);
+    }
+
+    .chatbot-btn:hover {
+      transform: scale(1.05);
+      background: #F7BC84;
+      color: #5a351a;
+    }
+
+    /* hide/show tables */
+    .table-pane {
+      display: none;
+    }
+
+    .table-pane.active-pane {
+      display: block;
+    }
+
+    /* MODAL STYLES (anti ragging) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-content {
+      background: #fffef7;
+      max-width: 800px;
+      width: 90%;
+      max-height: 85vh;
+      border-radius: 32px;
+      box-shadow: 0 30px 40px rgba(0,0,0,0.2);
+      overflow-y: auto;
+      padding: 1.8rem 2rem;
+      position: relative;
+      border: 1px solid #FFD9B5;
+    }
+    .modal-content h2 {
+      color: #b76a2e;
+      margin-bottom: 1rem;
+      font-size: 1.6rem;
+      border-left: 5px solid #F9C89B;
+      padding-left: 1rem;
+    }
+    .modal-content h3 {
+      color: #c27d44;
+      margin: 1rem 0 0.5rem;
+      font-size: 1.2rem;
+    }
+    .modal-content p, .modal-content li {
+      color: #5a3e2b;
+      line-height: 1.5;
+      font-size: 0.9rem;
+      margin-bottom: 0.6rem;
+    }
+    .modal-content ul {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #c2824a;
+      background: none;
+      border: none;
+      font-weight: bold;
+    }
+    .close-modal:hover {
+      color: #9b5e2e;
+    }
+    .download-btn {
+      background: #F9C89B;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      color: #6b3f1f;
+      cursor: pointer;
+      margin: 1rem 0 0.5rem;
+      font-family: inherit;
+      transition: 0.2s;
+    }
+    .download-btn:hover {
+      background: #f7b97e;
+    }
+    hr {
+      margin: 1rem 0;
+      border-color: #fce2cd;
+    }
+
+    @media (max-width: 700px) {
+      .college-name {
+        font-size: 1.6rem;
+      }
+      .fee-table th, .fee-table td {
+        padding: 0.8rem 0.8rem;
+        font-size: 0.85rem;
+      }
+      .fee-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .degree-switch {
+        align-self: flex-start;
+      }
+      .table-wrapper {
+        padding-left: 1.2rem;
+        padding-right: 1.2rem;
+      }
+      .contact-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .modal-content {
+        padding: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="fee-container">
+  <!-- College header with soft orange pastel -->
+  <div class="college-header">
+    <div class="college-name">
+      SJB Institute of Technology
+      <span>Est. 2001</span>
+    </div>
+    <div class="accreditation">
+      <p> AICTE Approved</p>
+      <p>| NAAC Accredited 'A++' Grade</p>
+      <p>| NBA Accredited (CSE, ECE, ME)</p>
+      <p>| Affiliated to VTU, Autonomous Institute</p>
+    </div>
+  </div>
+  <div class="contact-row">
+    <div class="contact-info">
+      📞 +91 80 2674 8956  |  ✉️ admissions@sjbtech.edu.in  |  📍 Bengaluru - 560060
+    </div>
+    <div class="badge-year">
+      📅 Academic Year 2025-26
+    </div>
+  </div>
+
+  <!-- Title + switch buttons (B.Tech / M.Tech) -->
+  <div class="fee-header-section">
+    <div>
+      <div class="program-title" id="dynamicTitle"> B.Tech First Year</div>
+      <div class="fra-sub" id="fraSubText">FRA approved Fees for First Year B. Tech. (UG) Engineering A.Y.2025-26</div>
+    </div>
+    <div class="degree-switch">
+      <button class="switch-btn active" data-degree="btech">B.Tech First Year</button>
+      <button class="switch-btn" data-degree="mtech">M.Tech First Year</button>
+    </div>
+  </div>
+
+  <!-- B.Tech Table Pane -->
+  <div id="btechPane" class="table-pane active-pane">
+    <div class="table-wrapper">
+      <table class="fee-table">
+        <thead>
+          <tr><th>Sr. No.</th><th>Description</th><th>Fees (₹)</th><th>Total Fees (₹)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Tuition Fee</strong></td><td class="fee-amount">1,05,217/-</td><td class="total-fee">1,21,000/-</td></tr>
+          <tr><td>2</td><td><strong>Development Fee</strong></td><td class="fee-amount">15,783/-</td><td>—</td></tr>
+          <tr style="background:#FFF6ED;"><td>3</td><td colspan="3" style="font-weight:700; color:#d18d4c;">💼 Management Seat Fees</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Computer Engineering</td><td class="fee-amount">3,32,750/-</td><td class="total-fee">3,32,750/-</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Information Technology</td><td class="fee-amount">3,02,500/-</td><td class="total-fee">3,02,500/-</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Artificial Intelligence & Data Science</td><td class="fee-amount">3,02,500/-</td><td class="total-fee">3,02,500/-</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Electronics & Telecommunication Engineering</td><td class="fee-amount">2,42,000/-</td><td class="total-fee">2,42,000/-</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Mechanical Engineering</td><td class="fee-amount">1,21,000/-</td><td class="total-fee">1,21,000/-</td></tr>
+          <tr><td>—</td><td class="branch-highlight"> Electrical Engineering</td><td class="fee-amount">1,21,000/-</td><td class="total-fee">1,21,000/-</td></tr>
+          <tr><td>4</td><td><strong> NRI Seat Fees</strong> (Foreign / NRI Sponsored)</td><td class="fee-amount">6,05,000/-</td><td class="total-fee">6,05,000/-</td></tr>
+          <tr><td>5</td><td><strong> Against NRI Seat Fees</strong> (Management / NRI Surrender)</td><td class="fee-amount">6,05,000/-</td><td class="total-fee">6,05,000/-</td></tr>
+          <tr><td>6</td><td><strong> Caution Money Deposit</strong> <span class="refund-badge">Refundable</span></td><td class="fee-amount">10,000/-</td><td class="total-fee">10,000/-</td></tr>
+        </tbody>
+      </table>
+      <div class="table-caption-note">
+        * Tuition Fee + Development Fee aggregate = ₹1,21,000/- (General category). Management quota fees are per annum. Caution money refundable after course completion.
+      </div>
+    </div>
+  </div>
+
+  <!-- M.Tech Table Pane -->
+  <div id="mtechPane" class="table-pane">
+    <div class="table-wrapper">
+      <table class="fee-table">
+        <thead><tr><th>Sr. No.</th><th>Description</th><th>Fees (₹)</th><th>Total Fees (₹)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Tuition Fee</strong></td><td class="fee-amount">69,565/-</td><td class="total-fee">80,000/-</td></tr>
+          <tr><td>2</td><td><strong>Development Fee</strong></td><td class="fee-amount">10,435/-</td><td>—</td></tr>
+          <tr><td>3</td><td><strong>Management Seat Fees</strong> (All M.Tech Specializations)</td><td class="fee-amount">80,000/-</td><td class="total-fee">80,000/-</td></tr>
+          <tr><td>4</td><td><strong>NRI Seat Fees</strong></td><td class="na-text">NA</td><td class="na-text">NA</td></tr>
+          <tr><td>5</td><td><strong>Against NRI Seat Fees</strong></td><td class="na-text">NA</td><td class="na-text">NA</td></tr>
+          <tr><td>6</td><td><strong>Caution Money Deposit</strong> <span class="refund-badge">Refundable</span></td><td class="fee-amount">10,000/-</td><td class="total-fee">10,000/-</td></tr>
+        </tbody>
+      </table>
+      <div class="table-caption-note">
+        * M.Tech tuition + development total: ₹80,000/- per annum. Management seat fees: ₹80,000/-. NRI seats not available for M.Tech as per FRA.
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional info box & footer links -->
+  <div class="info-box">
+    <span>📌 FRA approved fee structure | Management quota seats limited</span>
+    <span>🏠 Hostel & Mess: ₹1,20,000 - ₹1,45,000 per annum (optional)</span>
+  </div>
+  <div class="footer-links">
+    <div class="footer-nav">
+      <a href="#">| Fee Regulating Authority</a>
+      <a id="antiRaggingLink" style="cursor:pointer;">| Anti Ragging Committee</a>
+      <a href="#">| Grievance Redressal</a>
+      <a href="#">| Scholarship Portal</a>
+      <a href="#">| Mandatory Disclosure</a>
+      <a href="#">| Placement Cell</a>
+    </div>
+    <div class="copyright">
+      © 2025 SJB Institute of Technology | Autonomous | FRA Approved Structure
+    </div>
+  </div>
+</div>
+
+<!-- Floating Chatbot Enquiry Button -->
+<div class="chatbot-btn" id="chatbotTrigger" aria-label="College enquiry chatbot">
+  💬
+</div>
+
+<!-- Anti-Ragging Modal (hidden initially) -->
+<div id="antiRaggingModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal" id="closeModalBtn">&times;</button>
+    <h2>🚫 Anti-Ragging Committee & Policy</h2>
+    <p><strong>SJBIT has zero tolerance policy for ragging.</strong> The Institute views ragging as an uncivilized, and inhuman practice. We do not subscribe to the view that one could wait till something happens in order to initiate stringent action. Any rigorous action in such cases may damage a young career. So, we repose faith in averting such eventualities. For this, the Institute has a proactive policy.</p>
+    
+    <button id="downloadBookletBtn" class="download-btn">📥 Click here to download the Anti-Ragging Booklet 2025-26 (PDF)</button>
+    
+    <p>Preventive measures had been devised during the last couple of years to eliminate all possibilities of the occurrence of such a ghastly incident even in its mildest form. The measures have been implemented effectively to rule out any incident of ragging to be attempted by senior students at any place inside the campus. For making ragging non-grata at SJBIT, all stakeholders viz. management, faculty, students and employees are involved to create an environment.</p>
+    
+    <p><em>“Ragging in all its forms is totally banned in this institution including in its departments, constituent units, all its premises (academic, residential, sports, canteen/cafeteria and the like) whether located within the campus or outside and in all means of transportation of students whether public or private.”</em><br>
+    Students and parents need not harbor undue apprehensions in this regard. They should report any incident immediately to the college authorities and stringent punishment will be meted out to the culprit(s).<br>
+    <strong>“IF any incident of ragging comes to the notice of the authority, the concerned student shall be given liberty to explain and if his / her explanation is not found satisfactory, the authority would subject him / her to suitable punishment.”</strong></p>
+    
+    <p>To be vigilant on all the activities of the students in regard to ragging, we have formed ragging prevention committee headed by the Principal, Head of the Departments, representative from local police station, representative from civil administration, warden and senior faculty of the Institution, anti-ragging squad comprising of boys’ and girls’ hostel, all department blocks, library, student mentoring cell and student advisor group. The first-year students and parents can freely contact and seek help from anybody at any time with respect to ragging.</p>
+    
+    <p>Hoardings displayed at different places in the campus speaks itself about the Institution concern towards curbing the menace of ragging.</p>
+    
+    <p>As per the direction of the honorable Supreme Court of India, the institute will strictly follow the “AICTE Regulation on Curbing the Menace of Ragging in Educational Institutions”. In accordance with these regulations the affidavits from the students as well as parents / guardian are taken in online. These affidavits duly filled in, signed and sworn by student and parent/guardian are to be submitted at the time of registration. Regular coordinator meetings will be convened to discuss the issues if any.</p>
+    
+    <h3> Objectives</h3>
+    <ul>
+      <li>To make the institution ragging free campus.</li>
+      <li>Encouraging the students to express their grievance/problem freely and frankly without any fear.</li>
+      <li>To ensure effective solution to the student’s grievances with an impartial and fair approach</li>
+      <li>Creating a healthy environment among students, teachers and management.</li>
+    </ul>
+    
+    <h3> Plan of Action</h3>
+    <ul>
+      <li>Formation of Anti-Ragging committee, Anti-Ragging squad team, Anti-Ragging Student Group advisory committee, Anti-Ragging student mentoring cell</li>
+      <li>Preparation of Anti-Ragging booklet for the academic year</li>
+    </ul>
+    
+    <h3> Execution Methodology</h3>
+    <ul>
+      <li>Awareness is created by displaying Anti-Ragging boards in each block of the department, hostels, and at appropriate conspicuous places.</li>
+      <li>Distribution of Anti-Ragging booklet to students and staff</li>
+      <li>Orientation by the Principal and Basic Science HOD’s / Anti-Ragging co-ordinator</li>
+      <li>Filling of online Anti-Ragging affidavits</li>
+      <li>Continuous monitoring is done to curb any ragging incidents effectively</li>
+      <li>Anti-Ragging co-ordinators meeting, weekly reports, block visit reports, hostel visit reports, campus watch report.</li>
+    </ul>
+    <hr>
+    <p style="font-size:0.75rem;">For immediate help contact Anti-Ragging Helpline: 1800-180-5522 | Email: antiragging@sjbtech.edu.in</p>
+  </div>
+</div>
+
+<script>
+  // Toggle between B.Tech and M.Tech (unchanged)
+  const btechPane = document.getElementById('btechPane');
+  const mtechPane = document.getElementById('mtechPane');
+  const btns = document.querySelectorAll('.switch-btn');
+  const dynamicTitle = document.getElementById('dynamicTitle');
+  const fraSubText = document.getElementById('fraSubText');
+
+  function setActiveDegree(degree) {
+    if (degree === 'btech') {
+      btechPane.classList.add('active-pane');
+      mtechPane.classList.remove('active-pane');
+      dynamicTitle.innerHTML = ' B.Tech First Year';
+      fraSubText.innerHTML = 'FRA approved Fees for First Year B. Tech. (UG) Engineering A.Y.2025-26';
+    } else {
+      btechPane.classList.remove('active-pane');
+      mtechPane.classList.add('active-pane');
+      dynamicTitle.innerHTML = ' M.Tech First Year';
+      fraSubText.innerHTML = 'FRA approved Fees for First Year M. Tech. (PG) Engineering A.Y.2025-26';
+    }
+    btns.forEach(btn => {
+      if ((degree === 'btech' && btn.getAttribute('data-degree') === 'btech') ||
+          (degree === 'mtech' && btn.getAttribute('data-degree') === 'mtech')) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const degree = btn.getAttribute('data-degree');
+      if (degree === 'btech') setActiveDegree('btech');
+      else setActiveDegree('mtech');
+    });
+  });
+
+  // ---------- ANTI-RAGGING MODAL LOGIC (global functions) ----------
+  const modal = document.getElementById('antiRaggingModal');
+  const antiRaggingLink = document.getElementById('antiRaggingLink');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const downloadBtn = document.getElementById('downloadBookletBtn');
+
+  window.openModal = function() {
+    modal.classList.add('active');
+  };
+  function closeModal() {
+    modal.classList.remove('active');
+  }
+  antiRaggingLink.addEventListener('click', window.openModal);
+  closeModalBtn.addEventListener('click', closeModal);
+  // close when clicking outside content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // PDF generation for Anti-Ragging Booklet using jsPDF
+  downloadBtn.addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFont("helvetica");
+    doc.setFontSize(18);
+    doc.text("SJB Institute of Technology", 20, 20);
+    doc.setFontSize(14);
+    doc.text("Anti-Ragging Booklet 2025-26", 20, 35);
+    doc.setFontSize(11);
+    const contentLines = [
+      "Zero Tolerance Policy:",
+      "SJBIT has zero tolerance policy for ragging. The Institute views ragging as an uncivilized, inhuman practice.",
+      "Ragging in all forms is totally banned inside and outside campus.",
+      "",
+      "Preventive Measures:",
+      "- Anti-Ragging Committee, Squad, Student Group, Mentoring Cell formed.",
+      "- Hoardings displayed, online affidavits mandatory.",
+      "- Regular orientation for first-year students.",
+      "",
+      "Objectives:",
+      "1. Ragging free campus",
+      "2. Encourage free grievance expression",
+      "3. Impartial solution to student issues",
+      "4. Healthy environment",
+      "",
+      "Plan of Action:",
+      "Awareness campaigns, booklet distribution, continuous monitoring, weekly reports.",
+      "",
+      "Emergency Contacts:",
+      "Anti-Ragging Helpline: 1800-180-5522",
+      "Email: antiragging@sjbtech.edu.in"
+    ];
+    let y = 55;
+    contentLines.forEach(line => {
+      doc.text(line, 20, y);
+      y += 7;
+      if (y > 280) { doc.addPage(); y = 20; }
+    });
+    doc.save("SJBIT_Anti_Ragging_Booklet_2025-26.pdf");
+  });
+
+  // ---------- CHATBOT ENQUIRY (with anti-ragging response) ----------
+  (function() {
+    const chatButton = document.getElementById('chatbotTrigger');
+    let chatContainer = null;
+    let isChatOpen = false;
+
+    function getCurrentDegreeFromUI() {
+      if (btechPane.classList.contains('active-pane')) return 'btech';
+      return 'mtech';
+    }
+
+    // MODIFIED: added anti-ragging response
+    function getFeeResponse(query, activeDegree) {
+      const q = query.toLowerCase();
+      
+      // NEW: Anti-ragging query handling
+      if (q.includes('ragging') || q.includes('anti ragging')) {
+        return `
+           Our college has a strict anti-ragging policy.
+          <br><br>
+          Ragging is completely banned inside and outside campus. 
+          The college has an Anti-Ragging Committee, Squad, and 24/7 monitoring system.
+          <br><br>
+           You can read full policy and details below:
+          <br><br>
+          <button onclick="openModal()" style="
+            background:#F9C89B;
+            border:none;
+            padding:6px 12px;
+            border-radius:20px;
+            cursor:pointer;
+            font-weight:600;
+            font-family:inherit;
+          ">
+            View Anti-Ragging Details
+          </button>
+        `;
+      }
+      
+      // B.Tech related queries
+      if (activeDegree === 'btech') {
+        if (q.includes('tuition') || (q.includes('general') && q.includes('fee'))) {
+          return " B.Tech Tuition Fee: ₹1,05,217/- + Development Fee: ₹15,783/- = ₹1,21,000/- per year (general category).";
+        }
+        if (q.includes('management') || q.includes('quota')) {
+          return " B.Tech Management Seat Fees (per annum):<br>• Computer Engg: ₹3,32,750/-<br>• IT: ₹3,02,500/-<br>• AI&DS: ₹3,02,500/-<br>• E&TC: ₹2,42,000/-<br>• Mechanical: ₹1,21,000/-<br>• Electrical: ₹1,21,000/-";
+        }
+        if (q.includes('nri') || q.includes('against nri')) {
+          return " B.Tech NRI Seat Fees & Against NRI Seat Fees: ₹6,05,000/- each (all inclusive). Limited seats.";
+        }
+        if (q.includes('caution') || q.includes('deposit') || q.includes('refund')) {
+          return " Caution Money Deposit: ₹10,000/- (refundable).";
+        }
+        if (q.includes('computer') || q.includes('cse')) {
+          return " Computer Engineering (Management quota): ₹3,32,750/- per year. General tuition+dev = ₹1,21,000/-.";
+        }
+        if (q.includes('mechanical') || q.includes('electrical')) {
+          return " Mechanical & Electrical Engineering (Management quota): ₹1,21,000/- per annum each.";
+        }
+        if (q.includes('hostel')) {
+          return " Hostel & Mess: ₹1,20,000 to ₹1,45,000 per annum (optional).";
+        }
+        if (q.includes('scholarship')) {
+          return " Merit scholarships & government fee waivers available. Contact admission cell.";
+        }
+        return " I can help with B.Tech Tuition, Management seats (CSE, IT, AI&DS, E&TC, Mechanical, Electrical), NRI fees, Caution Money. What would you like to know?";
+      } 
+      else { // M.Tech active degree
+        if (q.includes('tuition') || q.includes('general fee')) {
+          return " M.Tech Tuition Fee: ₹69,565/- + Development Fee: ₹10,435/- = ₹80,000/- per year.";
+        }
+        if (q.includes('management') || q.includes('quota')) {
+          return " M.Tech Management Seat Fees: ₹80,000/- per annum (all specializations).";
+        }
+        if (q.includes('nri') || q.includes('against nri')) {
+          return " For M.Tech, NRI Seat Fees and Against NRI Seats are currently 'NA' as per FRA structure.";
+        }
+        if (q.includes('caution') || q.includes('deposit')) {
+          return " Caution Money Deposit: ₹10,000/- (refundable).";
+        }
+        if (q.includes('specialization') || q.includes('branch')) {
+          return "M.Tech specializations include Computer Science, VLSI, Thermal Engg, etc. Management fee flat ₹80,000/-.";
+        }
+        if (q.includes('hostel')) {
+          return " Hostel facilities available separately (approx ₹1.2L - ₹1.45L per annum).";
+        }
+        return " For M.Tech, fees: Tuition+Development ₹80,000, Management ₹80,000, Caution Money ₹10,000. NRI seats NA. Ask about any specific fee component!";
+      }
+    }
+
+    function createChatWidget() {
+      const panel = document.createElement('div');
+      panel.id = 'sjbChatPanel';
+      panel.style.position = 'fixed';
+      panel.style.bottom = '85px';
+      panel.style.right = '20px';
+      panel.style.width = '320px';
+      panel.style.maxWidth = 'calc(100vw - 40px)';
+      panel.style.backgroundColor = '#ffffff';
+      panel.style.borderRadius = '24px';
+      panel.style.boxShadow = '0 20px 35px -12px rgba(0, 0, 0, 0.2)';
+      panel.style.overflow = 'hidden';
+      panel.style.zIndex = '1001';
+      panel.style.fontFamily = "'Segoe UI', system-ui, sans-serif";
+      panel.style.display = 'flex';
+      panel.style.flexDirection = 'column';
+      panel.style.border = '1px solid #FFE2CC';
+      
+      const header = document.createElement('div');
+      header.style.background = '#FAD5A5';
+      header.style.color = '#6b3f1f';
+      header.style.padding = '14px 18px';
+      header.style.fontWeight = '600';
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.innerHTML = `<span>🤖 SJB Admission Assistant</span><span id="closeChatBtn" style="cursor:pointer; font-size:20px;">✕</span>`;
+      
+      const msgsDiv = document.createElement('div');
+      msgsDiv.style.height = '280px';
+      msgsDiv.style.overflowY = 'auto';
+      msgsDiv.style.padding = '15px';
+      msgsDiv.style.backgroundColor = '#FFFDF9';
+      msgsDiv.style.display = 'flex';
+      msgsDiv.style.flexDirection = 'column';
+      msgsDiv.style.gap = '10px';
+      
+      const inputArea = document.createElement('div');
+      inputArea.style.padding = '12px';
+      inputArea.style.borderTop = '1px solid #FFE2CC';
+      inputArea.style.display = 'flex';
+      inputArea.style.gap = '8px';
+      inputArea.style.background = '#ffffff';
+      
+      const inputField = document.createElement('input');
+      inputField.type = 'text';
+      inputField.placeholder = 'Ask about fees, courses, anti-ragging...';
+      inputField.style.flex = '1';
+      inputField.style.padding = '10px 12px';
+      inputField.style.border = '1px solid #FFD4B2';
+      inputField.style.borderRadius = '30px';
+      inputField.style.fontSize = '0.85rem';
+      inputField.style.outline = 'none';
+      
+      const sendBtn = document.createElement('button');
+      sendBtn.textContent = 'Send';
+      sendBtn.style.background = '#F9C89B';
+      sendBtn.style.border = 'none';
+      sendBtn.style.color = '#6b3f1f';
+      sendBtn.style.borderRadius = '30px';
+      sendBtn.style.padding = '0 16px';
+      sendBtn.style.fontWeight = '600';
+      sendBtn.style.cursor = 'pointer';
+      
+      inputArea.appendChild(inputField);
+      inputArea.appendChild(sendBtn);
+      panel.appendChild(header);
+      panel.appendChild(msgsDiv);
+      panel.appendChild(inputArea);
+      document.body.appendChild(panel);
+      
+      const currentDegree = getCurrentDegreeFromUI();
+      const degreeName = currentDegree === 'btech' ? 'B.Tech' : 'M.Tech';
+      const initialMsg = document.createElement('div');
+      initialMsg.style.backgroundColor = '#FFF1E6';
+      initialMsg.style.padding = '8px 12px';
+      initialMsg.style.borderRadius = '18px';
+      initialMsg.style.borderBottomLeftRadius = '4px';
+      initialMsg.style.alignSelf = 'flex-start';
+      initialMsg.style.maxWidth = '85%';
+      initialMsg.style.fontSize = '0.85rem';
+      initialMsg.style.color = '#c17b42';
+      initialMsg.innerHTML = `👋 Hello! I'm SJB enquiry assistant. Currently viewing <strong>${degreeName}</strong> fees. Ask about tuition, management quota, NRI, caution money, or anti-ragging policy.`;
+      msgsDiv.appendChild(initialMsg);
+      msgsDiv.scrollTop = msgsDiv.scrollHeight;
+      
+      function addUserMessage(text) {
+        const userDiv = document.createElement('div');
+        userDiv.style.backgroundColor = '#F9C89B';
+        userDiv.style.color = '#6b3f1f';
+        userDiv.style.padding = '8px 12px';
+        userDiv.style.borderRadius = '18px';
+        userDiv.style.borderBottomRightRadius = '4px';
+        userDiv.style.alignSelf = 'flex-end';
+        userDiv.style.maxWidth = '85%';
+        userDiv.style.fontSize = '0.85rem';
+        userDiv.style.wordBreak = 'break-word';
+        userDiv.textContent = text;
+        msgsDiv.appendChild(userDiv);
+        msgsDiv.scrollTop = msgsDiv.scrollHeight;
+      }
+      
+      function addBotMessage(text) {
+        const botDiv = document.createElement('div');
+        botDiv.style.backgroundColor = '#FFF0E3';
+        botDiv.style.padding = '8px 12px';
+        botDiv.style.borderRadius = '18px';
+        botDiv.style.borderBottomLeftRadius = '4px';
+        botDiv.style.alignSelf = 'flex-start';
+        botDiv.style.maxWidth = '85%';
+        botDiv.style.fontSize = '0.85rem';
+        botDiv.style.color = '#b56f39';
+        botDiv.innerHTML = text;
+        msgsDiv.appendChild(botDiv);
+        msgsDiv.scrollTop = msgsDiv.scrollHeight;
+      }
+      
+      function handleSend() {
+        const msg = inputField.value.trim();
+        if (msg === "") return;
+        addUserMessage(msg);
+        inputField.value = "";
+        const activeDegree = getCurrentDegreeFromUI();
+        setTimeout(() => {
+          const reply = getFeeResponse(msg, activeDegree);
+          addBotMessage(reply);
+        }, 280);
+      }
+      
+      sendBtn.onclick = handleSend;
+      inputField.onkeypress = (e) => {
+        if (e.key === 'Enter') handleSend();
+      };
+      
+      const closeBtn = header.querySelector('#closeChatBtn');
+      closeBtn.onclick = () => {
+        panel.remove();
+        isChatOpen = false;
+        chatContainer = null;
+      };
+      return panel;
+    }
+    
+    chatButton.addEventListener('click', () => {
+      if (chatContainer && document.getElementById('sjbChatPanel')) {
+        const existingPanel = document.getElementById('sjbChatPanel');
+        if (existingPanel) existingPanel.remove();
+        isChatOpen = false;
+        chatContainer = null;
+      } else {
+        chatContainer = createChatWidget();
+        isChatOpen = true;
+      }
+    });
+  })();
+</script>
+</body>
+</html>

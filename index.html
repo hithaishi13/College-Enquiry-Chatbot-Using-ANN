@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>College Chatbot</title>
+<style>
+body {
+  font-family: Arial;
+  background: #f5f5f5;
+}
+
+.chatbox {
+width: 350px;
+margin: 50px auto;
+background: white;
+border-radius: 10px;
+padding: 15px;
+box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+button {
+margin: 5px;
+padding: 8px 12px;
+border: none;
+background: #007bff;
+color: white;
+border-radius: 5px;
+cursor: pointer;
+}
+
+button:hover {
+background: #0056b3;
+}
+
+.message {
+margin: 10px 0;
+} </style>
+
+</head>
+
+<body>
+
+<div class="chatbox">
+  <h3>College Assistant 🤖</h3>
+
+  <div id="chat"></div>
+
+<button onclick="showLibrary()">Library</button> <button onclick="showHostel()">Hostel</button> <button onclick="showPlacement()">Placement</button> <button onclick="showFees()">Fees</button>
+
+</div>
+
+<script>
+
+function addMessage(text) {
+  document.getElementById("chat").innerHTML += "<div class='message'>" + text + "</div>";
+}
+
+// LIBRARY
+function showLibrary() {
+  addMessage("📚 Library: Spacious library with 8:45 AM - 5:30 PM timing.<br><button onclick='openPage(\"library.html\")'>View Gallery</button>");
+}
+
+// HOSTEL
+function showHostel() {
+  addMessage("🏠 Hostel: Separate boys & girls hostel with full facilities.<br><button onclick='openPage(\"hostel.html\")'>View Hostel</button>");
+}
+
+// PLACEMENT
+function showPlacement() {
+  addMessage("💼 Placement: Avg package 6 LPA, top companies visit.<br><button onclick='openPage(\"placement.html\")'>View Details</button>");
+}
+
+// FEES
+function showFees() {
+  addMessage("💰 Fees: Click below to view fee structure.<br><button onclick='openPage(\"fees.html\")'>View Fees</button>");
+}
+
+// OPEN PAGE
+function openPage(page) {
+  window.open(page, "_blank");
+}
+
+</script>
+
+</body>
+</html>

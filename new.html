@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>SJBIT Admission Assistant | Chatbot & Information Hub</title>
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Chart.js for placement graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #fef3e8;
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .main-header {
+      background: linear-gradient(115deg, #FFE1CA 0%, #FFD2B5 100%);
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      border-bottom: 1px solid #ffd2af;
+    }
+    .logo-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .college-title h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #9b5a2c;
+      letter-spacing: -0.3px;
+    }
+    .college-title p {
+      font-size: 0.75rem;
+      color: #bf7c48;
+    }
+    .quick-links {
+      display: flex;
+      gap: 1rem;
+    }
+    .quick-links a {
+      background: rgba(255,245,235,0.8);
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a26332;
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .quick-links a:hover {
+      background: #F9C89B;
+      color: #6b3f1f;
+    }
+    .chat-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+    .chat-card {
+      max-width: 900px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 32px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 70vh;
+      min-height: 500px;
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #FFFCF9;
+    }
+    .message {
+      max-width: 85%;
+      padding: 10px 16px;
+      border-radius: 24px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .user-msg {
+      align-self: flex-end;
+      background: #FAD5A5;
+      color: #6b3f1f;
+      border-bottom-right-radius: 6px;
+    }
+    .bot-msg {
+      align-self: flex-start;
+      background: #FFF1E6;
+      color: #b46730;
+      border-bottom-left-radius: 6px;
+    }
+    .bot-msg a, .bot-msg button {
+      margin-top: 6px;
+      display: inline-block;
+    }
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      background: #FFF1E6;
+      padding: 10px 16px;
+      border-radius: 24px;
+      width: fit-content;
+    }
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: #c2824a;
+      border-radius: 50%;
+      animation: blink 1.4s infinite;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,60%,100%{ opacity:0.3; } 30%{ opacity:1; } }
+    .chat-input-area {
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid #FBE4D2;
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 12px 18px;
+      border: 1px solid #FFD9BD;
+      border-radius: 48px;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .chat-input-area button {
+      background: #F9C89B;
+      border: none;
+      padding: 0 20px;
+      border-radius: 48px;
+      font-weight: 700;
+      color: #6b3f1f;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .chat-input-area button:hover {
+      background: #f7b97e;
+    }
+    .btn-sm {
+      background: #FDE2CF;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 32px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #bc6f37;
+      cursor: pointer;
+      margin-top: 8px;
+      margin-right: 8px;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .btn-sm:hover {
+      background: #F9C89B;
+      color: #5a351a;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s;
+    }
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .modal-content {
+      background: #fffef7;
+      max-width: 900px;
+      width: 90%;
+      max-height: 85vh;
+      border-radius: 32px;
+      overflow-y: auto;
+      padding: 1.6rem;
+      position: relative;
+      box-shadow: 0 30px 40px rgba(0,0,0,0.2);
+    }
+    .modal-content h2 {
+      color: #b76a2e;
+      margin-bottom: 0.8rem;
+      border-left: 5px solid #F9C89B;
+      padding-left: 1rem;
+    }
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1.2rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #c2824a;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      border: 1px solid #f5e1ce;
+    }
+    .fee-structure-container {
+      background: #fff;
+      border-radius: 24px;
+      overflow-x: auto;
+    }
+    .fee-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .fee-table th, .fee-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #FDE8D6;
+      text-align: left;
+    }
+    .fee-table th {
+      background: #FAD5A5;
+      color: #6b3f1f;
+    }
+    .placement-full {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .recruiter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px,1fr));
+      gap: 0.8rem;
+    }
+    .company-card {
+      background: #FEFAF5;
+      border-radius: 16px;
+      padding: 0.8rem;
+      text-align: center;
+      border: 1px solid #ffe2cc;
+    }
+    @media (max-width: 650px) {
+      .chat-card { height: 65vh; }
+      .message { max-width: 95%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="main-header">
+  <div class="logo-area">
+    <div class="college-title">
+      <h1>🏫 SJB Institute of Technology</h1>
+      <p>NAAC A++ | VTU Affiliated | AICTE Approved | Placement Excellence</p>
+    </div>
+    <div class="quick-links">
+      <a id="quickFeeLink">💰 Fee Structure</a>
+      <a id="quickPlaceLink">📊 Placement Hub</a>
+      <a id="quickAntiLink">🚫 Anti-Ragging</a>
+    </div>
+  </div>
+</header>
+
+<div class="chat-wrapper">
+  <div class="chat-card">
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot-msg">👋 Hello! I'm SJB Admission Assistant. Ask me about courses, cutoff, fees, hostel, library, placement, scholarships, anti-ragging & more!</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="userInput" placeholder="Type your question... e.g., cutoff, fee, hostel, placement" autocomplete="off">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="hostelModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="hostelModal">&times;</button>
+    <h2>🏠 SJBIT Hostel Gallery</h2>
+    <div class="gallery-grid" id="hostelGallery">
+      <img src="images/images (1).jpeg" alt="Hostel Room">
+      <img src="images/images (2).jpeg" alt="Hostel Common Area">
+      <img src="images/images (3).jpeg" alt="Hostel Mess">
+      <img src="images/images (4).jpeg" alt="Hostel Gym">
+    </div>
+    <p style="margin-top:1rem;">✨ Fully furnished rooms | Wi-Fi | 24/7 security | Boys & Girls hostel</p>
+  </div>
+</div>
+
+<div id="libraryModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="libraryModal">&times;</button>
+    <h2>📚 Central Library</h2>
+    <div class="gallery-grid" id="libraryGallery">
+      <img src="images/4-scaled.webp" alt="Reading Hall">
+      <img src="images/Lobby3.jpeg" alt="Digital Library">
+      <img src="images/STACK-1-1024x768.jpg" alt="Book Stack">
+      <img src="images/sjbit-library-kodipalya-bangalore-libraries-okkaepfzef.avif" alt="Reference">
+      
+    </div>
+    <p>🕒 Timings: 8:45 AM – 5:30 PM | E-resources & Journals</p>
+  </div>
+</div>
+
+<div id="feeModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 1000px;">
+    <button class="close-modal" data-modal="feeModal">&times;</button>
+    <h2>💰 Fee Structure 2025-26 (FRA Approved)</h2>
+    <div class="fee-structure-container">
+      <div style="margin-bottom: 1rem; display: flex; gap: 10px;">
+        <button class="btn-sm" id="feeBtechBtn">B.Tech First Year</button>
+        <button class="btn-sm" id="feeMtechBtn">M.Tech First Year</button>
+      </div>
+      <div id="btechFeeTable">
+        <table class="fee-table">
+          <thead><tr><th>Description</th><th>Amount (₹)</th></tr></thead>
+          <tbody>
+            <tr><td>Tuition Fee (General)</td><td>1,05,217/-</td></tr>
+            <tr><td>Development Fee</td><td>15,783/-</td></tr>
+            <tr><td><strong>Total (Govt Quota)</strong></td><td><strong>1,21,000/-</strong></td></tr>
+            <tr><td colspan="2"><strong>Management Quota (per annum)</strong></td></tr>
+            <tr><td>Computer Engineering</td><td>3,32,750/-</td></tr>
+            <tr><td>Information Technology</td><td>3,02,500/-</td></tr>
+            <tr><td>AI & Data Science</td><td>3,02,500/-</td></tr>
+            <tr><td>Electronics & Telecommunication</td><td>2,42,000/-</td></tr>
+            <tr><td>Mechanical / Electrical</td><td>1,21,000/-</td></tr>
+            <tr><td>NRI / Against NRI Seat</td><td>6,05,000/-</td></tr>
+            <tr><td>Caution Money (Refundable)</td><td>10,000/-</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="mtechFeeTable" style="display:none;">
+        <table class="fee-table">
+          <thead><tr><th>Description</th><th>Amount (₹)</th></tr></thead>
+          <tbody>
+            <tr><td>Tuition Fee</td><td>69,565/-</td></tr>
+            <tr><td>Development Fee</td><td>10,435/-</td></tr>
+            <tr><td><strong>Total (Govt Quota)</strong></td><td><strong>80,000/-</strong></td></tr>
+            <tr><td>Management Seat Fees (all specializations)</td><td>80,000/-</td></tr>
+            <tr><td>Caution Money (Refundable)</td><td>10,000/-</td></tr>
+            <tr><td>NRI Seats</td><td>NA</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="placementModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 1000px;">
+    <button class="close-modal" data-modal="placementModal">&times;</button>
+    <h2>🏆 Placement & Training Cell</h2>
+    <div id="placementFullContent" class="placement-full"></div>
+  </div>
+</div>
+
+<div id="antiModal" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="antiModal">&times;</button>
+    <h2>🚫 Anti-Ragging Committee & Policy</h2>
+    <p><strong>SJBIT has zero tolerance policy for ragging.</strong> The Institute views ragging as an uncivilized, inhuman practice. Ragging in all forms is totally banned inside and outside campus.</p>
+    <button id="downloadAntiPdfBtn" class="btn-sm" style="background:#F9C89B;">📥 Download Anti-Ragging Booklet (PDF)</button>
+    <h3>Objectives</h3>
+    <ul><li>Ragging free campus</li><li>Free grievance expression</li><li>Impartial solution</li><li>Healthy environment</li></ul>
+    <h3>Preventive Measures</h3>
+    <p>Anti-Ragging Committee, Squad, Student Group, mentoring cell, awareness hoardings, online affidavits, 24/7 helpline.</p>
+    <hr>
+    <p>📞 Helpline: 1800-180-5522 | ✉️ antiragging@sjbtech.edu.in</p>
+  </div>
+</div>
+
+<script>
+  // ---------- INTENTS DATASET (full patterns from user) ----------
+  const intents = [
+    { tag: "greeting", patterns: ["hi","how are you?","is anyone there?","hello","good day","what's up","how are ya","heyy","whatsup"], responses: ["Hello! Welcome to SJBIT Admission Bot.", "Hi there, how can I help?"] },
+    { tag: "goodbye", patterns: ["cya","see you","bye bye","see you later","goodbye","i am leaving","bye","have a good day","talk to you later","ttyl","i got to go","gtg"], responses: ["Sad to see you go :( Come back soon!", "Goodbye! Have a great day."] },
+    { tag: "creator", patterns: ["what is the name of your developers","what is the name of your creators","who created you","your developers","your creators","who are your developers","developers","you are made by","who made you","who designed you"], responses: ["The name of my creator is Hithaishi S H!"] },
+    { tag: "name", patterns: ["name","your name","do you have a name","what are you called","what is your name","what should i call you","whats your name?","what are you","who are you","who is this","what am i chatting to","who am i taking to"], responses: ["You can call me Admission-bot, your SJBIT helper."] },
+    { tag: "trust", patterns: ["trust","about trust","what about the college trust","trust info","say something about the college trust","give a short info about the college trust"], responses: ["The trust 'SJB Institute of Technology' was established in 2001 by Adichunchanagiri Shikshana Trust with motto 'Service to Mankind is Service to God'."] },
+    { tag: "club", patterns: ["clubs","which clubs are present","list down the clubs","co-curricular activities","student's chapter","how many students chapters"], responses: ["Our college clubs: ITSA, GDSC, Abhedya, Robocon, AESA, Zenith Astronomy, IEEE, MLSC, and more!"] },
+    { tag: "hours", patterns: ["timing of college","what is college timing","working days","when are you guys open","what are your hours","hours of operation","when is the college open","college timing","is college open on saturday","when should i come to college"], responses: ["College is open 9am-4pm Monday-Friday!"] },
+    { tag: "number", patterns: ["more info","contact","contact number","contact info","how to contact college","college telephone number","college number","what is your contact no","contact number?","how to call you","college phone no?","how can i contact you","can i get your phone number","how can i call you","phone number","phone no","call"], responses: ["You can contact at: 7414959307"] },
+    { tag: "courses", patterns: ["list of courses","courses","courses offered","branches","computer engineering","it","mechanical","information technology","ai/ml","what are the courses offered"], responses: ["Our college offers: Information Technology, Computer Engineering, Mechanical, Electrical, Electronics & Telecommunication, Artificial Intelligence & Data Science."] },
+    { tag: "about", patterns: ["about","about college","college info","intro of college","give a short info about the college","tell something about college"], responses: ["SJB Institute of Technology Kengeri is one of the best engineering colleges in Bangalore, NAAC 'A' grade, affiliated to VTU. <br><a href='https://sjbit.edu.in' target='_blank' rel='noopener noreferrer'>Visit Official Website</a> for more details."] },
+    { tag: "eligibility", patterns: ["eligibility","eligibility criteria","what is the eligibility criteria","how much score is required","does college accept cet score","does college accept jee score"], responses: ["Eligibility - Passed XII and CET / COMEDK score mandatory. For details refer to Karnataka CET Cell."] },
+    { tag: "document", patterns: ["document to bring","documents","documents needed for admission","documents required","what documents do i need","documents needed at the time of admission"], responses: ["Documents: Passport photo, 10th & 12th marksheet, Domicile, Caste certificate, Income certificate."] },
+    { tag: "floors", patterns: ["size of campus","building size","how many floors does college have","floors"], responses: ["Our College has total 6 floors."] },
+    { tag: "syllabus", patterns: ["syllabus","syllabus for it","timetable","what is it syllabus","first year subjects"], responses: ["First year subjects: Engg. Mathematics-I/II, Physics, Chemistry, Mechanics, Basic Electrical, Electronics, Graphics, Programming."] },
+    { tag: "infrastructure", patterns: ["how is college infrastructure","infrastructure","college infrastructure"], responses: ["Our College has Excellent Infrastructure, AC Labs, high-speed internet, smart classrooms."] },
+    { tag: "canteen", patterns: ["canteen","food facilities","is there any canteen","does college have canteen"], responses: ["Our college has an in-campus canteen with variety of food."] },
+    { tag: "menu", patterns: ["menu","food menu","whats there on menu","what is available in canteen","food variety","what is there to eat?"], responses: ["Famous items: Vada-sambar, Idli-Vada, Alu-puri, Paneer Paratha, Fruit Mocktail."] },
+    { tag: "facilities", patterns: ["what facilities college provide","other facilities","college facility","what are college facilities","facilities","facilities provided"], responses: ["Facilities: AC Labs, smart classrooms, library, canteen, sports, gym, Wi-Fi campus."] },
+    { tag: "college intake", patterns: ["max number of students","number of seats per branch","seat allotment","seats","maximum students intake"], responses: ["Seats: IT-60, CSE-120, AIDS-60, E&TC-120, Mechanical-120, Electrical-60."] },
+    { tag: "uniform", patterns: ["college dress code","uniform","what is the uniform","do we have to wear uniform"], responses: ["Uniform: Formal White Shirt, Navy Blue Pants, Maroon Tie."] },
+    { tag: "random", patterns: ["i love you","will you marry me","do you love me"], responses: ["I am not programmed for this, please ask appropriate query."] },
+    { tag: "swear", patterns: ["fuck","bitch","shut up","hell","stupid","idiot","dumb ass","asshole","fucker"], responses: ["please use appropriate language", "Maintaining decency would be appreciated"] },
+    { tag: "vacation", patterns: ["holidays","when will semester starts","when will semester end","when is the holidays","list of holidays","holiday list","about vacations","when is vacation"], responses: ["Academic calendar is provided by class coordinators after admission."] },
+    { tag: "sports", patterns: ["sports and games","sports infrastructure","sports facilities","information about sports","sports activities","gym"], responses: ["Large playground, cricket, football, volleyball, indoor games (chess, carrom), gymnasium."] },
+    { tag: "salutation", patterns: ["thanks","thank you","good job","ok","okay","thanks for the help"], responses: ["You're welcome! Anything else I can assist?"] },
+    { tag: "task", patterns: ["what can you do","what are the things you can do","how can you help me","why should i use you"], responses: ["I can answer queries about courses, cutoff, fees, hostel, library, placement, scholarship, anti-ragging & admission steps."] },
+    { tag: "faculty",
+      patterns: ["faculty","professors","teaching staff","who are the faculty members","tell me about faculty","how is the faculty"],
+      responses: ["Our college has highly qualified and experienced faculty members with PhDs and industry experience. They are dedicated to student success and research.SJBIT faculty details are available here: <a href='https://sjbit.edu.in/faculty-cse/' target='_blank'>CSE Faculty Page</a> ,  <a href='https://sjbit.edu.in/faculty/' target='_blank' rel='noopener noreferrer'>https://sjbit.edu.in/faculty/</a> ,  <a href='https://sjbit.edu.in/faculty-mechanical/' target='_blank' rel='noopener noreferrer'>https://sjbit.edu.in/faculty-mechanical/</a>"]
+    },
+    { tag: "steps", patterns: ["steps","admission steps","admission process","step by step admission procedure","admission flowchart"], responses: ["Steps: 1. Registration (FMCIII Entrance) 2. Seat acceptance & ERP form 3. Document verification 4. Fee payment 5. Admission confirmation 6. CPRN allotment 7. ID card & kit 8. Hostel (optional) 9. WhatsApp group join."] }
+  ];
+
+  function matchIntent(message) {
+    const lowerMsg = message.toLowerCase();
+    for (let intent of intents) {
+      for (let pattern of intent.patterns) {
+        if (lowerMsg.includes(pattern.toLowerCase())) {
+          return intent.tag;
+        }
+      }
+    }
+    return null;
+  }
+
+  function getInteractiveResponse(tag, userMsg) {
+    if (tag === "cutoff") {
+      return `🎯 <strong>UG Cutoff (CET/COMEDK ranks - approx)</strong><br> BE Mechanical - 53.82, Electrical - 58.71, ENTC - 93.89, IT - 96.45, Computer - 97.18, AIDS - 95.56.<br><br>
+      <button class="btn-sm" id="downloadPgCutoff">📄 Download PG Cutoff PDF (M.Tech CSE 9000-16000)</button>
+      <button class="btn-sm" id="downloadUgCutoff">📄 Download UG Cutoff PDF (CET/COMEDK table 2024-25)</button>`;
+    }
+    else if (tag === "fee") {
+      return `💰 Fee details available. Click below to view complete structure.<br><button class="btn-sm" id="showFeeModalBtn">📋 View Complete Fee Structure (UG/PG)</button>`;
+    }
+    else if (tag === "location") {
+      return `📍 Our college address: SJB Institute of Technology, #67 Dr.Vishnuvardhan Road, Kengeri, Bangalore - 560060.<br><a href="https://maps.app.goo.gl/3ezGUsTVbcP661qp6" target="_blank">🗺️ Click here to view on Google Maps</a>`;
+    }
+    else if (tag === "hostel") {
+      return `🏠 Our college has Wi-Fi enabled Boys' & Girls' hostel with capacity 444 students. Fully furnished, attached bath, solar water.<br><button class="btn-sm" id="showHostelBtn">🖼️ View Hostel Gallery</button>`;
+    }
+    else if (tag === "library") {
+      return `📖 There is a huge spacious library, timings 8:45am - 5:30pm. Digital resources, journals, books.<br><button class="btn-sm" id="showLibraryBtn">📸 View Library Gallery</button>`;
+    }
+    else if (tag === "placement") {
+      return `🏅 SJBIT placement: Top recruiters TCS, Wipro, Infosys, Deloitte, Cognizant. Average package: 6 LPA, highest 14 LPA.<br><button class="btn-sm" id="showPlacementBtn">📊 View Complete Placement Record (Recruiters, Graphs, Training)</button>`;
+    }
+    else if (tag === "scholarship") {
+      return `🎓 Many government scholarships available. Visit official portals:<br>🔗 <a href="https://ssp.karnataka.gov.in/" target="_blank">SSP Karnataka</a> | <a href="https://dce.karnataka.gov.in/30/Student%20Scholarships/en" target="_blank">DCE Scholarships</a>`;
+    }
+    else if (tag === "ragging") {
+      return `🚫 Ragging is strictly banned. SJBIT provides ragging-free environment with strict disciplinary action.<br><button class="btn-sm" id="showAntiModalBtn">📜 View Anti-Ragging Policy & Committee</button>`;
+    }
+    else {
+      const intentObj = intents.find(i => i.tag === tag);
+      if (intentObj && intentObj.responses.length) return intentObj.responses[0];
+      return "I'm not sure about that. You can ask about cutoff, fees, hostel, library, placement, scholarship, admission steps, etc.";
+    }
+  }
+
+  // PDF generators
+  function generatePgCutoffPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("SJB Institute of Technology", 20, 20);
+    doc.setFontSize(12);
+    doc.text("M.Tech Cutoff (2021) - CET/COMEDK", 20, 35);
+    doc.text("M.Tech CSE : 9000 - 16000 rank range", 20, 50);
+    doc.save("SJBIT_MTech_Cutoff.pdf");
+  }
+  function generateUgCutoffPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("SJBIT UG Cutoff (CET/COMEDK) 2024-2025", 20, 20);
+    doc.setFontSize(10);
+    doc.text("Branch wise ranks (approx):", 20, 35);
+    doc.text("CSE: 20000-32000 | AI&ML: 22000-34000 | Data Science: 23000-35000 | ECE: 30000-42000 | Mechanical: 100000-120000", 20, 50);
+    doc.save("SJBIT_UG_Cutoff_Summary.pdf");
+  }
+
+  // Modal management
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+  }
+  document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const modal = btn.closest('.modal-overlay');
+      if (modal) modal.classList.remove('active');
+    });
+  });
+  window.addEventListener('click', (e) => {
+    if (e.target.classList && e.target.classList.contains('modal-overlay')) e.target.classList.remove('active');
+  });
+
+  // Load placement dashboard with charts
+  let placementChart, internshipChart;
+  function loadPlacementFull() {
+    const container = document.getElementById('placementFullContent');
+    container.innerHTML = `
+      <div style="background:#FFF9F2; border-radius:24px; padding:1rem;">
+        <h3>🏢 Top Recruiters</h3>
+        <div class="recruiter-grid" id="recruitersGrid"></div>
+        <h3 style="margin-top:1rem;">📈 Placement Percentage</h3>
+        <canvas id="placementCanvas" width="400" height="200"></canvas>
+        <h3>🎓 Internship Record</h3>
+        <canvas id="internshipCanvas" width="400" height="200"></canvas>
+        <h3>📚 Training Programs</h3>
+        <ul><li>Aptitude & Reasoning (42 hrs)</li><li>Soft Skills & Mock Interviews</li><li>Industry Immersion & Industrial Visits</li><li>Higher Education Support (GRE/IELTS)</li></ul>
+      </div>
+    `;
+    const recruitersList = ["Dentsu","Schaeffler","Tech Mahindra","Infosys","Capgemini","Bosch","Polycab","Tata Engg","Zensar","Persistent","Jabil"];
+    const gridDiv = document.getElementById('recruitersGrid');
+    if (gridDiv) {
+      recruitersList.forEach(name => {
+        const card = document.createElement('div');
+        card.className = 'company-card';
+        card.innerHTML = `<div style="font-weight:700;">${name}</div>`;
+        gridDiv.appendChild(card);
+      });
+    }
+    // Destroy old charts if exist
+    if (placementChart) placementChart.destroy();
+    if (internshipChart) internshipChart.destroy();
+    const ctx1 = document.getElementById('placementCanvas').getContext('2d');
+    const ctx2 = document.getElementById('internshipCanvas').getContext('2d');
+    placementChart = new Chart(ctx1, {
+      type: "bar",
+      data: { labels: ["2022-23","2023-24","2024-25"], datasets: [{ label: "Placement %", data: [74,85,81], backgroundColor: "#F9C89B" }] }
+    });
+    internshipChart = new Chart(ctx2, {
+      type: "line",
+      data: { labels: ["2022-23","2023-24","2024-25"], datasets: [{ label: "Internship %", data: [68,72,70], borderColor: "#E68A2E", fill: true, backgroundColor: "rgba(249,200,155,0.2)" }] }
+    });
+  }
+
+  // Chat UI with typing indicator
+  const chatMessagesDiv = document.getElementById('chatMessages');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+
+  function addMessage(text, isUser) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${isUser ? 'user-msg' : 'bot-msg'}`;
+    msgDiv.innerHTML = text;
+    chatMessagesDiv.appendChild(msgDiv);
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+  }
+
+  function showTyping() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    chatMessagesDiv.appendChild(typingDiv);
+    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+  }
+  function removeTyping() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) indicator.remove();
+  }
+
+  async function processUserInput() {
+    const msg = userInput.value.trim();
+    if (!msg) return;
+    addMessage(msg, true);
+    userInput.value = '';
+    showTyping();
+    const lowerMsg = msg.toLowerCase();
+    let tag = matchIntent(msg);
+    if (lowerMsg.includes('cutoff') || lowerMsg.includes('cut off')) tag = 'cutoff';
+    if (lowerMsg.includes('fee') || lowerMsg.includes('fees') || lowerMsg.includes('tuition')) tag = 'fee';
+    if (lowerMsg.includes('hostel')) tag = 'hostel';
+    if (lowerMsg.includes('library')) tag = 'library';
+    if (lowerMsg.includes('placement') || lowerMsg.includes('package')) tag = 'placement';
+    if (lowerMsg.includes('scholarship')) tag = 'scholarship';
+    if (lowerMsg.includes('ragging')) tag = 'ragging';
+    if (lowerMsg.includes('location') || lowerMsg.includes('address') || lowerMsg.includes('map')) tag = 'location';
+    if (tag === null) tag = 'default';
+    setTimeout(() => {
+      removeTyping();
+      const responseHtml = getInteractiveResponse(tag, msg);
+      addMessage(responseHtml, false);
+    }, 800);
+  }
+
+  sendBtn.addEventListener('click', processUserInput);
+  userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') processUserInput(); });
+
+  // Global event delegation for dynamic buttons and quick links
+  document.body.addEventListener('click', (e) => {
+    if (e.target.id === 'downloadPgCutoff') generatePgCutoffPDF();
+    if (e.target.id === 'downloadUgCutoff') generateUgCutoffPDF();
+    if (e.target.id === 'showFeeModalBtn') openModal('feeModal');
+    if (e.target.id === 'showHostelBtn') openModal('hostelModal');
+    if (e.target.id === 'showLibraryBtn') openModal('libraryModal');
+    if (e.target.id === 'showPlacementBtn') { loadPlacementFull(); openModal('placementModal'); }
+    if (e.target.id === 'showAntiModalBtn') openModal('antiModal');
+    if (e.target.id === 'downloadAntiPdfBtn') {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("SJBIT Anti-Ragging Booklet", 20, 20);
+      doc.text("Zero tolerance policy. Ragging banned.", 20, 40);
+      doc.save("Anti_Ragging_SJBIT.pdf");
+    }
+    if (e.target.id === 'quickFeeLink') openModal('feeModal');
+    if (e.target.id === 'quickPlaceLink') { loadPlacementFull(); openModal('placementModal'); }
+    if (e.target.id === 'quickAntiLink') openModal('antiModal');
+    if (e.target.id === 'feeBtechBtn') { document.getElementById('btechFeeTable').style.display = 'block'; document.getElementById('mtechFeeTable').style.display = 'none'; }
+    if (e.target.id === 'feeMtechBtn') { document.getElementById('btechFeeTable').style.display = 'none'; document.getElementById('mtechFeeTable').style.display = 'block'; }
+  });
+</script>
+</body>
+</html>
